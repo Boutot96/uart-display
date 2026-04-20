@@ -28,10 +28,13 @@ def get_distance():
 
     return distance
 
-try:
-    while True:
-        dist = get_distance()
-        print("Distance:", dist, "cm")
-        time.sleep(1)
-except KeyboardInterrupt:
-    GPIO.cleanup()
+
+### Uncomment for testing distance sensor ###
+
+# try:
+#     while True:
+#         dist = get_distance()
+#         print("Distance:", dist, "cm")
+#         time.sleep(1)
+# except KeyboardInterrupt:
+#     GPIO.cleanup()
