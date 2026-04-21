@@ -1,0 +1,6 @@
+.pio/
+build/
+*.bin
+*.elf
+__pycache__/
+*.pyc
