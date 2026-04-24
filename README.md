@@ -68,18 +68,11 @@ python3 pi/uart_sender.py
 
 ### CrowPanel Side
 
-Two build options available:
+Built with PlatformIO (VS Code). Open `crowpanel/uart_receiver/` as a PlatformIO project — all dependencies are pinned in `platformio.ini` and will be downloaded automatically.
 
-**Arduino IDE:**
-- ESP32 core 2.0.14
-- Libraries from Elecrow GitHub repo (copy `example/libraries/` to Arduino libraries folder)
-- Flash `crowpanel/uart_receiver/uart_receiver.ino`
+Flash with `Ctrl+Alt+U` or `platformio run --target upload`.
 
-**PlatformIO (VS Code):**
-- Open `crowpanel/uart_receiver/` as a PlatformIO project
-- `platformio.ini` has all dependencies pinned
-- Build and flash with `Ctrl+Alt+U`
-
+Required ESP32 core: espressif32 @ 6.4.0 (Arduino core 2.0.14 equivalent).
 ## What I Learned
 
 - UART protocol design and packet framing across two devices
