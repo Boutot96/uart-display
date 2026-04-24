@@ -24,7 +24,8 @@ Arduino_ST7701_RGBPanel *gfx = new Arduino_ST7701_RGBPanel(
 );
 
 static lv_disp_draw_buf_t draw_buf;
-lv_obj_t *label;
+lv_obj_t *label_distance;
+lv_obj_t *label_pot;
 
 void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p) {
   uint32_t w = (area->x2 - area->x1 + 1);
@@ -53,7 +54,7 @@ void initPins() {
 }
 
 String packet;
-String last_dist = "--";
+String last = "--";
 
 void setup() {
   delay(2000);
@@ -77,32 +78,44 @@ void setup() {
   disp_drv.draw_buf = &draw_buf;
   lv_disp_drv_register(&disp_drv);
 
-  label = lv_label_create(lv_scr_act());
+  label_distance = lv_label_create(lv_scr_act());
   lv_obj_set_style_bg_color(lv_scr_act(), lv_color_black(), 0);
   lv_obj_set_style_bg_opa(lv_scr_act(), LV_OPA_COVER, 0);
-  lv_label_set_text(label, (last_dist + " cm").c_str());
-  lv_obj_set_style_text_font(label, &lv_font_montserrat_48, 0);
-  lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
-  lv_obj_set_style_text_color(label, lv_color_white(), 0);
+  lv_label_set_text(label_distance, (last + " cm").c_str());
+  lv_obj_set_style_text_font(label_distance, &lv_font_montserrat_48, 0);
+  lv_obj_align(label_distance, LV_ALIGN_CENTER, 0, -50);
+  lv_obj_set_style_text_color(label_distance, lv_color_white(), 0);
+
+
+  label_pot = lv_label_create(lv_scr_act());
+  lv_obj_align(label_pot, LV_ALIGN_CENTER, 0, 50);
+  lv_obj_set_style_text_font(label_pot, &lv_font_montserrat_48, 0);
+  lv_obj_set_style_text_color(label_pot, lv_color_white(), 0);
+  lv_label_set_text(label_pot, "Pot: --");
 
   Serial.println("Setup done");
 }
 
 
 
-void update_dispaly(String dist){
-  char buf[16];
-  snprintf(buf, sizeof(buf), "%s cm", dist.c_str());
-  lv_label_set_text(label, buf);
-}
-
 void loop() {
+  char buf[16];
   if (Serial1.available()) {
     packet = Serial1.readStringUntil('\n');
     packet.trim();
+
     if (packet.startsWith("<DIST:") && packet.endsWith(">")) {
-      last_dist = packet.substring(6, packet.length() - 1);
-      update_dispaly(last_dist);
+      last = packet.substring(6, packet.length() - 1);
+      snprintf(buf, sizeof(buf), "%s cm", last.c_str());
+      lv_label_set_text(label_distance, buf);
+
+    }
+    
+    else if (packet.startsWith("<VOLT:") && packet.endsWith(">")) {
+      last = packet.substring(6, packet.length() - 1);
+      snprintf(buf, sizeof(buf), "Pot: %s", last.c_str());
+      lv_label_set_text(label_pot, buf);
+
     }
   }
   lv_timer_handler();
