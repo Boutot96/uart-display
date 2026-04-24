@@ -1,16 +1,23 @@
-# UART Distance Display
+# UART Distance & Voltage Display
 
-A two-device embedded system that reads distance from an HC-SR04 ultrasonic sensor on a Raspberry Pi 4B and transmits the data over UART to an Elecrow CrowPanel ESP32 2.1" round display.
+A two-device embedded system that reads distance from an HC-SR04 ultrasonic sensor and analog voltage from a potentiometer via an ADS7830 I2C ADC on a Raspberry Pi 4B, and transmits both over UART to an Elecrow CrowPanel ESP32 2.1" round display.
 
 ## Hardware
 
 - Raspberry Pi 4B (8GB)
 - HC-SR04 Ultrasonic Distance Sensor
+- ADS7830 I2C ADC (8-channel, 8-bit)
+- 10k Potentiometer
 - Elecrow CrowPanel 2.1" HMI ESP32 Rotary Display (480x480)
 - Jumper wires
 
 ## Architecture
-The Pi reads the sensor via GPIO timing, formats the distance into a structured packet `<DIST:42.3>` and transmits at 115200 baud. The CrowPanel receives and parses the packet and renders the distance live on screen.
+
+    HC-SR04 --GPIO--|
+                    |--> Pi 4B --> UART --> CrowPanel ESP32 --> Round Display
+    ADS7830 --I2C--|
+
+The Pi reads both sensors and sends two structured UART packets at 115200 baud. The CrowPanel parses both packet types and renders them as live labels on screen using LVGL.
 
 ## Wiring
 
@@ -22,6 +29,15 @@ The Pi reads the sensor via GPIO timing, formats the distance into a structured 
 | TRIG | Pin 16 (GPIO 23) |
 | ECHO | Pin 18 (GPIO 24) |
 
+### ADS7830 → Pi 4B (I2C)
+| ADS7830 | Pi GPIO |
+|---------|---------|
+| VCC | Pin 1 (3.3V) |
+| GND | Pin 9 (GND) |
+| SDA | Pin 3 (GPIO 2) |
+| SCL | Pin 5 (GPIO 3) |
+| CH0 | Potentiometer wiper |
+
 ### Pi 4B → CrowPanel UART
 | Pi | CrowPanel |
 |----|-----------|
@@ -29,27 +45,48 @@ The Pi reads the sensor via GPIO timing, formats the distance into a structured 
 | Pin 10 (RX) | TX |
 | Pin 6 (GND) | GND |
 
+## UART Protocol
+
+Two packet types are sent at ~10Hz:
+- `<DIST:42.3>` — distance in cm from HC-SR04
+- `<VOLT:1.65>` — voltage from potentiometer via ADS7830
+
+Packets use angle bracket framing with a colon-separated key:value format, making the protocol easily extensible for additional sensors.
+
 ## Software
 
 ### Pi Side
 - Python 3
 - RPi.GPIO
-- pyserial (`pip install pyserial`)
+- pyserial
+- smbus
 
-Run:
 ```bash
+pip install pyserial smbus
 python3 pi/uart_sender.py
 ```
 
 ### CrowPanel Side
-- Arduino IDE with ESP32 core 2.0.14
-- Libraries from Elecrow GitHub repo (see `crowpanel/uart_receiver/`)
+
+Two build options available:
+
+**Arduino IDE:**
+- ESP32 core 2.0.14
+- Libraries from Elecrow GitHub repo (copy `example/libraries/` to Arduino libraries folder)
 - Flash `crowpanel/uart_receiver/uart_receiver.ino`
+
+**PlatformIO (VS Code):**
+- Open `crowpanel/uart_receiver/` as a PlatformIO project
+- `platformio.ini` has all dependencies pinned
+- Build and flash with `Ctrl+Alt+U`
 
 ## What I Learned
 
-- UART protocol design and packet framing
+- UART protocol design and packet framing across two devices
+- I2C ADC communication and analog sensor reading
 - Cross-device serial communication between Linux and an ESP32
 - HC-SR04 GPIO timing and distance calculation
-- ESP32 RGB display driver initialization
-- Embedded systems project structure across multiple devices
+- ESP32 RGB display driver initialization (ST7701 + Arduino GFX)
+- LVGL integration for embedded GUI rendering
+- Library version management for embedded projects
+- PlatformIO project configuration and dependency pinning
