@@ -1,8 +1,10 @@
-#include "distance_read.h"
+#define _POSIX_C_SOURCE 199309L // Avoids error indicators when using CLOCK_MONOTONIC
+#include "hcsr04.h"
 #include <time.h>
 #include <unistd.h>
 
-
+// Initilize the HCSR04 sensor with the specified trigger and echo pins
+// returns an initialized HCSR04 sensor struct
 HCSR04 hcsr04_init(int trig_pin, int echo_pin) {
     HCSR04 sensor;
     sensor.chip = gpiod_chip_open_by_name("gpiochip0");
@@ -13,6 +15,8 @@ HCSR04 hcsr04_init(int trig_pin, int echo_pin) {
     return sensor;
 }
 
+// Read the distance from the HCSR04 sensor
+// returns the distance in centimeters, or -1 if an error occurred
 double read_distance(HCSR04 *sensor) {
     struct timespec pulse_start, pulse_end, current;
 
@@ -37,6 +41,8 @@ double read_distance(HCSR04 *sensor) {
     return elapsed * 17150;
 }
 
+// Close the HCSR04 sensor
+// Releases the resources associated with the HCSR04 sensor.
 void hcsr04_close(HCSR04 *sensor) {
     gpiod_line_release(sensor->trig);
     gpiod_line_release(sensor->echo);

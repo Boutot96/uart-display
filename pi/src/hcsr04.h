@@ -1,5 +1,5 @@
-#ifndef distance_read_H
-#define distance_read_H
+#ifndef hcsr04_H
+#define hcsr04_H
 
 #include <gpiod.h>
 
