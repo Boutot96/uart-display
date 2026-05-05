@@ -2,7 +2,7 @@ import smbus
 import time
 
 bus = smbus.SMBus(1)
-ADS7830_ADDR = 0x48
+ADS7830_ADDR = 0x4b
 
 def read_channel(channel):
     command = 0x84 | (channel << 4)
