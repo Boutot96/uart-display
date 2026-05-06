@@ -12,7 +12,7 @@ int uart_init(const char *device, int baud) {
     cfsetospeed(&options, baud);
     options.c_cflag |= (CLOCAL | CREAD);
     tcsetattr(fd, TCSANOW, &options);
-    return fd;
+    return fd; 
 }
 
 void uart_send(int fd, const char *packet) {
