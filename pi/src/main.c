@@ -28,14 +28,14 @@ void test_hcsr04() {
 }
 
 void test_ads_7830() {
-    ADS_7830 adc = ads_7830_init(0x48);
+    ADS_7830 adc = ads_7830_init(0x4b);
 
     while (running) {
-        int value = read_adc(&adc);
+        float value = read_adc(&adc, 0);
         if (value < 0) {
             printf("Error reading ADC\n");
         } else {
-            printf("ADC Value: %d\n", value);
+            printf("ADC Value: %.2f V\n", value);
         }
         sleep(1);
     }
@@ -48,7 +48,7 @@ void test_ads_7830() {
 
 int main() {
     signal(SIGINT, handle_sigint);
-    test_hcsr04();
-    
+    //test_hcsr04();
+    test_ads_7830(); 
     return 0;
 }

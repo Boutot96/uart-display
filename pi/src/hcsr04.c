@@ -21,7 +21,7 @@ double read_distance(HCSR04 *sensor) {
     struct timespec pulse_start, pulse_end, current;
 
     gpiod_line_set_value(sensor->trig, 1);
-    usleep(10);
+    sleep(1);
     gpiod_line_set_value(sensor->trig, 0);
 
     clock_gettime(CLOCK_MONOTONIC, &pulse_start);
