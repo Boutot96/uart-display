@@ -19,7 +19,7 @@ void uart_send(int fd, const char *packet) {
     write(fd, packet, strlen(packet));
 }
 
-void uart_send(int fd, const char *packet) {
+void uart_read(int fd, char *packet) {
     read(fd, packet, strlen(packet));
 }
 
